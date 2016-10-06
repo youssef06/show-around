@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/youssef06/show-around/issues"
   },
-  "homepage": "https://github.com/youssef06/show-around#readme"
+  "homepage": "https://github.com/youssef06/show-around#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
