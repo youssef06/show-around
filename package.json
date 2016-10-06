@@ -1,0 +1,25 @@
+{
+  "name": "show-around",
+  "version": "1.0.0",
+  "description": "Facebook bot that shows you around",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/youssef06/show-around.git"
+  },
+  "keywords": [
+    "Facebook",
+    "bot",
+    "google",
+    "maps"
+  ],
+  "author": "khalid Rehioui, Youssef",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/youssef06/show-around/issues"
+  },
+  "homepage": "https://github.com/youssef06/show-around#readme"
+}
