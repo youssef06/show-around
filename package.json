@@ -24,7 +24,9 @@
   "homepage": "https://github.com/youssef06/show-around#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "crypto": "0.0.3",
     "express": "^4.14.0",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "xtend": "^4.0.1"
   }
 }
