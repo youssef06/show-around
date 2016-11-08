@@ -1,30 +1,51 @@
+const config = require('./config');
+
 //dummy data object
-let data = {
-	'austria': [
-		"http://kingofwallpapers.com/austria/austria-004.jpg",
-		"https://www.google.com/maps/@47.1225825,12.1876013,3a,75y,49.93h,89.8t/data=!3m8!1e1!3m6!1s-eb6VCx-SsfY%2FV21wjYqqrCI%2FAAAAAAAC1Lc%2FbU3PYrKUHRQRYD_1eLWRJ4I2kalpwgzdACLIB!2e4!3e11!6s%2F%2Flh6.googleusercontent.com%2F-eb6VCx-SsfY%2FV21wjYqqrCI%2FAAAAAAAC1Lc%2FbU3PYrKUHRQRYD_1eLWRJ4I2kalpwgzdACLIB%2Fw203-h101-n-k-no%2F!7i8192!8i4096"
-	],
-	'switzerland': [
-		"http://img.myswitzerland.com/678717/555",
-		"https://www.italiarail.com/pages/sites/default/files/inline-images/train_from_italy_to_switzerland_0.jpg",
-		"https://www.google.com/maps/place/Mont+Cervin/@45.97648,7.6585533,3a,75y,59.89h,77.47t/data=!3m8!1e1!3m6!1s-8OrRLlaUwKs%2FV4QOhs7IbHI%2FAAAAAAAAAKE%2FywuxQwcjtyEjYQ6jCWT8fjEiexRqL5JdACLIB!2e4!3e11!6s%2F%2Flh4.googleusercontent.com%2F-8OrRLlaUwKs%2FV4QOhs7IbHI%2FAAAAAAAAAKE%2FywuxQwcjtyEjYQ6jCWT8fjEiexRqL5JdACLIB%2Fw234-h117-n-k-no%2F!7i8704!8i4352!4m5!3m4!1s0x478f3368cbb9ecd9:0x9826458cace55849!8m2!3d45.976574!4d7.6584519!5m1!1e4!6m1!1e1"
-	]
-};
+let places = [
+	'austria',
+	'switzerland',
+    'italy',
+    'spain',
+    'england',
+    'germany',
+    'morocco'
+];
 
 
-function getImage(str) {
-	var countries = Object.keys(data);
-
-	var found = countries.filter(function (country) {
-		//if str contains country name
-		return str.toLowerCase().indexOf(country) != -1;
+function getImage(str, cb) {
+	var found = places.filter(function (place) {
+		//if str contains place name
+		return str.toLowerCase().indexOf(place) != -1;
 	});
 
 	if(found.length) {
-		return data[found[0]];
+        return getImageForPlace(found[0], cb);
 	}
+    cb(null);
+}
 
-	return [];
+function getImageForPlace(place, cb) {
+    var googleMapsClient = require('@google/maps').createClient({
+        key: config.GOOGLE_MAPS_KEY
+    });
+
+    googleMapsClient.places({
+        query: place
+    }, function(err, response) {
+        if (!err) {
+            //console.log(response.json.results[0].photos[0]);
+
+            googleMapsClient.placesPhoto({
+                photoreference: response.json.results[0].photos[0].photo_reference,
+                maxwidth: 400
+            }, function(err, response) {
+                if (!err) {
+                    var s = 'https://' + response.socket.parser.socket._host + response.socket.parser.socket._httpMessage.path;
+                    cb(s);
+                }
+            });
+        }
+    });
 }
 
 

@@ -38,13 +38,13 @@ app.listen(app.get('port'), function () {
 });
 
 bot.on('message', (data) => {
-    console.log(`received ${data.messageText}`);
-    let images = getimage(data.messageText);
-    if(images.length) {
-        bot.sendImageMessage(data.senderId, images[0]);
-    } else {
-        bot.sendTextMessage(data.senderId, 'sorry i have nothing to say :|');
-    }
+    getimage(data.messageText, function (url) {
+        if(url) {
+            bot.sendImageMessage(data.senderId, url);
+        } else {
+            bot.sendTextMessage(data.senderId, 'sorry i have nothing to say :|');
+        }
+    });
 });
 
 
