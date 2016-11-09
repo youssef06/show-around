@@ -179,7 +179,7 @@ class Bot extends EventEmitter {
             }
         };
 
-        this.callSendAPI(messageData);
+        return this.callSendAPI(messageData);
     }
 
     /*
@@ -197,7 +197,7 @@ class Bot extends EventEmitter {
             }
         };
 
-        this.callSendAPI(messageData);
+        return this.callSendAPI(messageData);
     }
 
 
@@ -249,7 +249,7 @@ class Bot extends EventEmitter {
             }
         };
 
-        this.callSendAPI(messageData);
+        return this.callSendAPI(messageData);
     }
 
     /*
@@ -258,27 +258,31 @@ class Bot extends EventEmitter {
      *
      */
     callSendAPI(messageData) {
-        request({
-            uri: 'https://graph.facebook.com/v2.6/me/messages',
-            qs: {access_token: this.options.PAGE_ACCESS_TOKEN},
-            method: 'POST',
-            json: messageData
+        return new Promise((resolve, reject) => {
+            request({
+                uri: 'https://graph.facebook.com/v2.6/me/messages',
+                qs: {access_token: this.options.PAGE_ACCESS_TOKEN},
+                method: 'POST',
+                json: messageData
 
-        }, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                var recipientId = body.recipient_id;
-                var messageId = body.message_id;
+            }, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var recipientId = body.recipient_id;
+                    var messageId = body.message_id;
 
-                if (messageId) {
-                    console.log("Successfully sent message with id %s to recipient %s",
-                        messageId, recipientId);
+                    if (messageId) {
+                        console.log("Successfully sent message with id %s to recipient %s",
+                            messageId, recipientId);
+                    } else {
+                        console.log("Successfully called Send API for recipient %s",
+                            recipientId);
+                    }
+                    resolve();
                 } else {
-                    console.log("Successfully called Send API for recipient %s",
-                        recipientId);
+                    console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+                    reject();
                 }
-            } else {
-                console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
-            }
+            });
         });
     }
 }
