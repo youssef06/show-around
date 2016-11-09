@@ -1,52 +1,34 @@
 const config = require('./config');
 
-//dummy data object
-let places = [
-	'austria',
-	'switzerland',
-    'italy',
-    'spain',
-    'england',
-    'germany',
-    'morocco'
-];
+function getImageForPlace(place) {
+    return new Promise((resolve, reject) => {
+        var googleMapsClient = require('@google/maps').createClient({
+            key: config.GOOGLE_MAPS_KEY
+        });
 
+        googleMapsClient.places({
+            query: place
+        }, function(err, response) {
+            if (!err) {
+                //console.log(response.json.results[0].photos[0]);
 
-function getImage(str, cb) {
-	var found = places.filter(function (place) {
-		//if str contains place name
-		return str.toLowerCase().indexOf(place) != -1;
-	});
-
-	if(found.length) {
-        return getImageForPlace(found[0], cb);
-	}
-    cb(null);
-}
-
-function getImageForPlace(place, cb) {
-    var googleMapsClient = require('@google/maps').createClient({
-        key: config.GOOGLE_MAPS_KEY
-    });
-
-    googleMapsClient.places({
-        query: place
-    }, function(err, response) {
-        if (!err) {
-            //console.log(response.json.results[0].photos[0]);
-
-            googleMapsClient.placesPhoto({
-                photoreference: response.json.results[0].photos[0].photo_reference,
-                maxwidth: 400
-            }, function(err, response) {
-                if (!err) {
-                    var s = 'https://' + response.socket.parser.socket._host + response.socket.parser.socket._httpMessage.path;
-                    cb(s);
-                }
-            });
-        }
+                googleMapsClient.placesPhoto({
+                    photoreference: response.json.results[0].photos[0].photo_reference,
+                    maxwidth: 400
+                }, function(err, response) {
+                    if (!err) {
+                        var s = 'https://' + response.socket.parser.socket._host + response.socket.parser.socket._httpMessage.path;
+                        resolve(s);
+                    } else {
+                        reject();
+                    }
+                });
+            } else {
+                reject();
+            }
+        });
     });
 }
 
 
-module.exports = getImage;
+module.exports = getImageForPlace;
