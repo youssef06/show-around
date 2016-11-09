@@ -27,6 +27,7 @@
     "body-parser": "^1.15.2",
     "crypto": "0.0.3",
     "express": "^4.14.0",
+    "node-wit": "^4.1.0",
     "request": "^2.75.0",
     "xtend": "^4.0.1"
   }
