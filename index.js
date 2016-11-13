@@ -8,27 +8,24 @@ const config = require('./config')
 
 let bot = new Bot(config);
 
-var firstEntityValue = function (entities, entity) {
-    var val = entities && entities[entity] &&
-        Array.isArray(entities[entity]) &&
-        entities[entity].length > 0 &&
-        entities[entity][0].value
-
-    if (!val) {
-        return null
-    }
-    return typeof val === 'object' ? val.value : val
-}
-
 // Our bot actions
 const actions = {
-    send({sessionId}, {text}) {
+    /**
+     * This is used by the "Bot sends" action in Wit
+     * @param sessionId
+     * @param text
+     * @param quickreplies
+     * @returns {Promise.<T>}
+     */
+    send({sessionId}, {text, quickreplies}) {
         // Our bot has something to say!
-        // Let's retrieve the Facebook user whose session belongs to
+        // Let's retrieve the Facebook user whom this session belongs to
         const recipientId = sessions[sessionId].fbid;
         if (recipientId) {
+            console.log('Wit: send action : ' + text);
+            console.log(arguments);
             // Yay, we found our recipient!
-            // Let's forward our bot response to her.
+            // Let's forward our bot response to him.
             // We return a promise to let our bot know when we're done sending
             return bot.sendTextMessage(recipientId, text)
                 .catch((err) => {
@@ -42,34 +39,54 @@ const actions = {
         } else {
             console.error('Oops! Couldn\'t find user for session:', sessionId);
             // Giving the wheel back to our bot
-            return Promise.resolve()
+            return Promise.resolve();
         }
     },
-    // You should implement your custom actions here
-    // See https://wit.ai/docs/quickstart
-    merge({sessionId, context, entities, message}) {
-
+    /**
+     * Merge action
+     * @param sessionId
+     * @param context
+     * @param text
+     * @param entities
+     * @returns {Promise.<*>}
+     */
+    merge({sessionId, context, text, entities}) {
+        console.log('Wit: merge action : ');
+        console.log(arguments);
+        //remove previously stored location
+        //delete context.location;
         // Retrive the location entity and store it in the context field
         var loc = firstEntityValue(entities, 'location')
         if (loc) {
             context.location = loc
+            context.missingLocation = false;
+        } else {
+            context.missingLocation = true;
         }
 
         return Promise.resolve(context)
     },
-    ['get-image']({sessionId, context, entities, message}) {
-        const recipientId = sessions[sessionId].fbid;
-        console.log("exec get image ");
-        console.log(recipientId);
-        console.log(context);
+    /**
+     * Get-Image action, used to search for a photo of the given context.location and send the photo to the user
+     * @param sessionId
+     * @param context
+     * @param text
+     * @param entities
+     * @returns {*}
+     */
+    ['get-image']({sessionId, context, text, entities}) {
+        console.log('Wit: get-image action : ');
+        console.log(arguments);
         if(!context.location) {
-            return;
+            return Promise.resolve();
         }
+        const recipientId = sessions[sessionId].fbid;
         return getimage(context.location)
             .then(function (url) {
-                console.log("get image "+url);
                 if(url) {
                     context.url = url;
+
+                    return bot.sendImageMessage(recipientId, url);
                 }
                 return;
             })
@@ -117,6 +134,7 @@ app.listen(app.get('port'), function () {
     console.log('Node app is running on port', app.get('port'));
 });
 
+//each time we receive a user's message
 bot.on('message', (data) => {
 
     // We retrieve the user's current session, or create one if it doesn't exist
@@ -130,24 +148,32 @@ bot.on('message', (data) => {
         data.messageText, // the user's message
         sessions[sessionId].context // the user's current session state
     ).then((context) => {
+        //context has been potentially modified by one of our wit actions
         // Our bot did everything it has to do.
         // Now it's waiting for further messages to proceed.
         console.log('Waiting for next user messages');
+        console.log('Reinitializing session');
+        delete sessions[sessionId];
         // Updating the user's current session state
-        sessions[sessionId].context = context;
+        //sessions[sessionId].context = context;
     }).catch((err) => {
         console.error('Oops! Got an error from Wit: ', err.stack || err);
-    })
+    });
 });
 
 // ----------------------------------------------------------------------------
-// Wit.ai bot specific code
+// Wit.ai bot specific functions
 
 // This will contain all user sessions.
 // Each session has an entry:
 // sessionId -> {fbid: facebookUserId, context: sessionState}
 const sessions = {};
 
+/**
+ * Find or create session for user
+ * @param fbid
+ * @returns {*}
+ */
 const findOrCreateSession = (fbid) => {
     let sessionId;
     // Let's see if we already have a session for the user fbid
@@ -164,3 +190,21 @@ const findOrCreateSession = (fbid) => {
     }
     return sessionId;
 };
+
+/**
+ * Get Entity value from list
+ * @param entities
+ * @param entity
+ * @returns {*}
+ */
+var firstEntityValue = function (entities, entity) {
+    var val = entities && entities[entity] &&
+        Array.isArray(entities[entity]) &&
+        entities[entity].length > 0 &&
+        entities[entity][0].value
+
+    if (!val) {
+        return null
+    }
+    return typeof val === 'object' ? val.value : val
+}
