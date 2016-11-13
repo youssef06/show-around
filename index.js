@@ -86,7 +86,10 @@ const actions = {
                 if(url) {
                     context.url = url;
 
-                    return bot.sendImageMessage(recipientId, url);
+                    return bot.sendTextMessage(recipientId, 'Here you go')
+                        .then(() => {
+                            return bot.sendImageMessage(recipientId, url);
+                        });
                 }
                 return;
             })
@@ -135,17 +138,20 @@ app.listen(app.get('port'), function () {
 });
 
 //each time we receive a user's message
-bot.on('message', (data) => {
+bot.on('message', ({senderId, messageText}) => {
+
+    //echo back the message
+    //bot.sendTextMessage(senderId, messageText);
 
     // We retrieve the user's current session, or create one if it doesn't exist
     // This is needed for our bot to figure out the conversation history
-    const sessionId = findOrCreateSession(data.senderId);
+    const sessionId = findOrCreateSession(senderId);
 
     // Let's forward the message to the Wit.ai Bot Engine
     // This will run all actions until our bot has nothing left to do
     wit.runActions(
         sessionId, // the user's current session
-        data.messageText, // the user's message
+        messageText, // the user's message
         sessions[sessionId].context // the user's current session state
     ).then((context) => {
         //context has been potentially modified by one of our wit actions
