@@ -3,7 +3,7 @@ const express = require('express')
 const Wit = require('node-wit').Wit
 const log = require('node-wit').log
 const Bot = require('./bot')
-const getimage = require('./image-search-mock.js')
+const getimage = require('./image-search.js')
 const config = require('./config')
 
 let bot = new Bot(config);

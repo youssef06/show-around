@@ -2,11 +2,12 @@ Show-Around: a Wit.ai Powered Facebook Messenger Bot
 ====================================================
 This is a Facebook Messenger Bot that will send you pictures of places you're interested in.
 
+![Bot screen](img/wit3.gif)
 
-If you follow this short tutorial you'll be able to:
+If you follow this short tutorial you will do the following:
 - Setup a Facebook Messenger bot with Node js
 - Integrate Wit.ai to your Bot
-- Define Wit.ai actions that can then be called from Wit.ai stories
+- Add stories on Wit.ai
 
 You can try it out [here](http://youssef06.github.io/react-vote/index.html)
 
@@ -54,13 +55,61 @@ It should echo back any message you write
 
 Create your Stories
 -------------------
-We've got our bot setup, but for now all it does is just repeat whatever we say, let's make it smarter using Wit.ai Stories:
+We've got our bot setup, but for now all it does is just echo back whatever we say to it, it's still not using Wit.ai, let's fix that.
+Create a Wit.ai story:
 As explained on Wit.ai: 
 > "You will teach Wit by example, and each example conversation is called a Story"
 
- So let's create a story:
+- So let's create a story:
+![Create a story on Wit.ai](img/wit1.gif)
+"merge" and "get-image" are actions that are defined in index.js, make sure to comment the sendTextMessage call, and uncomment the block below like this:
 
 
-Now let's teach our bot more variations:
+```
+//echo back the message
+//bot.sendTextMessage(senderId, messageText);
+
+// We retrieve the user's current session, or create one if it doesn't exist
+// This is needed for our bot to figure out the conversation history
+const sessionId = findOrCreateSession(senderId);
+
+// Let's forward the message to the Wit.ai Bot Engine
+// This will run all actions until our bot has nothing left to do
+wit.runActions(
+    sessionId, // the user's current session
+    messageText, // the user's message
+    sessions[sessionId].context // the user's current session state
+).then((context) => {
+    //context has been potentially modified by one of our wit actions
+    // Our bot did everything it has to do.
+    // Now it's waiting for further messages to proceed.
+    console.log('Waiting for next user messages');
+    console.log('Reinitializing session');
+    delete sessions[sessionId];
+    // Updating the user's current session state
+    //sessions[sessionId].context = context;
+}).catch((err) => {
+    console.error('Oops! Got an error from Wit: ', err.stack || err);
+});
+```
+If you test your bot again with something like:
+```
+Show me a picture of London
+```
+It should send you a picture of London.
+- Let's try to help our bot understand more variations:
+Go to the "understanding" tab:
+![Understanding on Wit.ai](img/wit2.gif)
+ 
+ Notice that in the 3rd example
+ ```
+ What's the weather in Manchester?
+ ```
+ The intent is not to get a photo of Manchester.
  
  
+ Todo
+ -----
+ Add more capabilities to the Bot:
+ - Greetings
+ - Asking for location if not specified
