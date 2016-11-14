@@ -1,7 +1,7 @@
 {
   "name": "show-around",
   "version": "1.0.0",
-  "description": "Facebook bot that shows you around",
+  "description": "Facebook bot that shows you pictures of places you're interested in",
   "main": "api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
