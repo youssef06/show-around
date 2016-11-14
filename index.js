@@ -141,11 +141,11 @@ app.listen(app.get('port'), function () {
 bot.on('message', ({senderId, messageText}) => {
 
     //echo back the message
-    //bot.sendTextMessage(senderId, messageText);
+    bot.sendTextMessage(senderId, messageText);
 
     // We retrieve the user's current session, or create one if it doesn't exist
     // This is needed for our bot to figure out the conversation history
-    const sessionId = findOrCreateSession(senderId);
+    /*const sessionId = findOrCreateSession(senderId);
 
     // Let's forward the message to the Wit.ai Bot Engine
     // This will run all actions until our bot has nothing left to do
@@ -164,7 +164,7 @@ bot.on('message', ({senderId, messageText}) => {
         //sessions[sessionId].context = context;
     }).catch((err) => {
         console.error('Oops! Got an error from Wit: ', err.stack || err);
-    });
+    });*/
 });
 
 // ----------------------------------------------------------------------------
