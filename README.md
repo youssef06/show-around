@@ -109,7 +109,7 @@ Go to the "understanding" tab:
  
  Notice that in the 3rd example
  ```
- What's the weather in Manchester?
+ "What's the weather in Manchester?"
  ```
  The intent is not to get a photo of Manchester, the more variations we teach it the more accurate our results will be.
  
