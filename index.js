@@ -93,6 +93,9 @@ const actions = {
                 }
                 return;
             })
+            .catch(() => {
+                context.missingUrl = true;
+            })
             .then(() => {
               return context;
             });
@@ -143,8 +146,11 @@ bot.on('message', ({senderId, messageText}) => {
     //echo back the message
     bot.sendTextMessage(senderId, messageText);
 
+    //IMPORTANT: you need to comment the sendTextMessage call above and uncomment the MAIN BLOCK below to enable the use of Wit.ai
+
     // We retrieve the user's current session, or create one if it doesn't exist
     // This is needed for our bot to figure out the conversation history
+    //MAIN BLOCK
     /*const sessionId = findOrCreateSession(senderId);
 
     // Let's forward the message to the Wit.ai Bot Engine

@@ -12,17 +12,21 @@ function getImageForPlace(place) {
             if (!err) {
                 //console.log(response.json.results[0].photos[0]);
 
-                googleMapsClient.placesPhoto({
-                    photoreference: response.json.results[0].photos[0].photo_reference,
-                    maxwidth: 400
-                }, function(err, response) {
-                    if (!err) {
-                        var s = 'https://' + response.socket.parser.socket._host + response.socket.parser.socket._httpMessage.path;
-                        resolve(s);
-                    } else {
-                        reject();
-                    }
-                });
+                try {
+                    googleMapsClient.placesPhoto({
+                        photoreference: response.json.results[0].photos[0].photo_reference,
+                        maxwidth: 400
+                    }, function(err, response) {
+                        if (!err) {
+                            var s = 'https://' + response.socket.parser.socket._host + response.socket.parser.socket._httpMessage.path;
+                            resolve(s);
+                        } else {
+                            reject();
+                        }
+                    });
+                } catch(e) {
+                    reject();
+                };
             } else {
                 reject();
             }
